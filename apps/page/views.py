@@ -40,7 +40,7 @@ def act_lang(func):
         return resp
     return wrapper
 
-@act_lang
+# @act_lang
 def index(request):
     news_list = Article.objects.filter(category='NEWS').all()[0:4]
     event_list = Article.objects.filter(category='EVENT').all()[0:4]
@@ -48,71 +48,84 @@ def index(request):
     #topic_list = Article.objects.filter(category__in=['SCI', 'TECH', 'PUB']).order_by('?').all()[0:10]
     topic_list = Article.objects.filter(is_homepage=True).order_by('?').all()[0:10]
 
+    url = f'http://solr:8983/solr/taibif_occurrence/select?indent=true&q.op=OR&q=*%3A*&rows=0'
+    r = requests.get(url).json()   
+    occ_num =  r['response']['numFound']
+
+    dataset_num = Dataset.objects.filter(status='PUBLIC').count()
+    # taxon_cover = len(occ_result['facets']['taxon_id']['buckets'])
+         
     context = {
         'news_list': news_list,
         'event_list': event_list,
         'update_list': update_list,
         'topic_list': topic_list,
         'stats': get_home_stats(),
+        'dataset_num':dataset_num,
+        'occ_num':occ_num,
+        # 'taxon_cover':taxon_cover,
     }
 
     return render(request, 'index.html', context)
 
-@act_lang
+# @act_lang
 def publishing_data(request):
     return render(request, 'publishing-data.html')
 
-@act_lang
+# @act_lang
 def data_policy(request):
     return render(request, 'data-policy.html')
 
-@act_lang
+# @act_lang
 def journals(request):
     Journal_url = Journal.objects.all()
 
-    return render(None,'journals.html', locals())
+    return render(request,'journals.html', locals())
 
-@act_lang
+# @act_lang
 def cookbook(request):
     return render(request, 'cookbook.html')
 
-@act_lang
+# @act_lang
 def cookbook_detail_1(request):
     return render(request, 'cookbook-detail-1.html')
 
-@act_lang
+# @act_lang
 def cookbook_detail_2(request):
     return render(request, 'cookbook-detail-2.html')
 
-@act_lang
+# @act_lang
 def cookbook_detail_3(request):
     return render(request, 'cookbook-detail-3.html')
 
-@act_lang
+# @act_lang
 def tools(request):
     return render(request, 'tools.html')
 
-@act_lang
+# @act_lang
 def contact_us(request):
     if request.method == 'GET':
         return render(request, 'contact-us.html')
     elif request.method == 'POST':
         ''' Begin reCAPTCHA validation '''
-        recaptcha_response = request.POST.get('g-recaptcha-response')
-        #print(recaptcha_response)
+        recaptcha_response = request.POST.get('h-captcha-response')
+        # print(recaptcha_response)
         data = {
-            'secret': settings.GOOGLE_RECAPTCHA_SECRET_KEY,
+            'secret': settings.HCAPTCHA_SECRET_KEY,
             'response': recaptcha_response
         }
-        r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=data)
+        r = requests.post('https://hcaptcha.com/siteverify', data=data)
         result = r.json()
         ''' End reCAPTCHA validation '''
-
+        
         if result['success'] == False:
             messages.error(request, '請進行驗證，謝謝')
-        return redirect('contact_us')
-
-
+            return redirect('contact_us')
+        
+        if re.search("\?", request.POST.get('cat','')) :
+            messages.error(request, '請進行驗證，謝謝')
+            return redirect('contact_us')
+        
         data = {
             'name':  request.POST.get('name', ''),
             'cat': request.POST.get('cat', ''),
@@ -128,24 +141,24 @@ def contact_us(request):
 def plans(request):
     return render(request, 'plans.html')
 
-@act_lang
+# @act_lang
 def links(request):
     Post_url = Post.objects.all()
-    return render(None,'links.html', locals())
+    return render(request,'links.html', locals())
 
-@act_lang
+# @act_lang
 def about_taibif(request):
     return render(request, 'about-taibif.html')
 
-@act_lang
+# @act_lang
 def about_gbif(request):
     return render(request, 'about-gbif.html')
 
-@act_lang
+# @act_lang
 def open_data(request):
     return render(request, 'open-data.html')
 
-@act_lang
+# @act_lang
 def data_stats(request):
     is_most = request.GET.get('most', '')
 

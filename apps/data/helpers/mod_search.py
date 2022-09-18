@@ -1,4 +1,5 @@
 from abc import ABCMeta, abstractmethod
+from pydoc import describe
 import time
 import re
 
@@ -12,6 +13,7 @@ from apps.data.models import (
     Taxon,
     Dataset,
     DatasetOrganization,
+    Dataset_description,
 )
 
 
@@ -257,12 +259,15 @@ class DatasetSearch(SuperSearch):
                 v = values[0] # only get one
                 if not v:
                     continue
-                query = query.filter(Q(title__icontains=v) | Q(description__icontains=v))
+                
+                desc = list(Dataset_description.objects.filter(description__icontains=v).values_list('id', flat=True))                  
+                query = query.filter(Q(title__icontains=v)| Q(pk__in=(desc)))
+                
             if key == 'core':
                 v = values[0] # only get one
                 if not v:
                     continue
-                d = DATA_MAPPING['core'][v]
+                d = v
                 query = query.filter(dwc_core_type__exact=d)
             if key == 'publisher':
                 query = query.filter(organization__in=values)

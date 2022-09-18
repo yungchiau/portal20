@@ -12,6 +12,8 @@ DATA_MAPPING = {
         'ZM': '尚比亞',
         'BI': '蒲隆地',
         'CN': '中國',
+        'IN':'印度',
+        'VN':'越南',
         'unknown':'其他',
     },
     'rights': {
@@ -19,6 +21,7 @@ DATA_MAPPING = {
         'Creative Commons Attribution (CC-BY) 4.0 License': 'CC-BY 4.0',
         'Public Domain (CC0 1.0)': 'CC0 1.0',
         None:'未明確授權',
+        'unknown':'未明確授權',
     },
     'core': {
         'occurrence': 'Occurrence',
@@ -83,7 +86,7 @@ class Dataset(models.Model):
     organization_name = models.TextField(blank=True, null=True)
     organization = models.ForeignKey('DatasetOrganization', null=True, blank=True, on_delete=models.SET_NULL, related_name='datasets')
     num_occurrence = models.PositiveIntegerField(default=0)
-    is_most_project = models.BooleanField('是否為科技部計畫', default=False)
+    is_most_project = models.BooleanField('是否為國科會計畫', default=False)
     quality = models.CharField('資料集品質', max_length=4, default='')
     has_publish_problem = models.BooleanField('是否有發布問題 (IPT 裡黃色的區塊)', default=False, help_text='有可能 IPT 授權沒填?')
     admin_memo = models.TextField('後台管理註記', blank=True, null=True, help_text='不會在前台出現')
@@ -149,7 +152,7 @@ class Dataset_Contact(models.Model):
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, null=True)
     givenname =  models.CharField(max_length=128,null=True,blank=True)
     surname  =  models.CharField(max_length=128,null=True,blank=True)
-    organizationname =  models.CharField(max_length=128,null=True,blank=True)
+    organizationname =  models.CharField(max_length=512,null=True,blank=True)
     positionname =  models.CharField(max_length=1024,null=True,blank=True)
     deliverypoint =  models.CharField(max_length=2048,null=True,blank=True)
     city =  models.CharField(max_length=128,null=True,blank=True)
@@ -162,6 +165,7 @@ class Dataset_Contact(models.Model):
     role =  models.CharField(max_length=128,null=True,blank=True)
     role_type = models.CharField(max_length=128,null=True,blank=True)
     # creator =  models.BooleanField(default=False,null=True,blank=True)
+    
 
 class Dataset_keyword(models.Model):
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, null=True)
@@ -169,7 +173,7 @@ class Dataset_keyword(models.Model):
     seq = models.TextField(null=True,blank=True)
 
 class Dataset_description(models.Model):
-    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, null=True)
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE, null=True, related_query_name="desc",)
     description = models.TextField(null=True,blank=True)
     seq = models.TextField(null=True,blank=True)
 

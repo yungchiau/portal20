@@ -260,7 +260,6 @@ def occurrence_search_v2(request):
             new_menus.append(tmp_menu)
         else:
             new_menus.append(menus[i])
-
     # month hack
     #print(new_menus)
     for menu in new_menus:
@@ -271,7 +270,7 @@ def occurrence_search_v2(request):
                 for x in menu['rows']:
                     if str(x['key']) == str(month):
                         count = x['count']
-                        break
+
                 month_rows.append({
                     'key': str(month),
                     'label': str(month),
@@ -299,19 +298,40 @@ def occurrence_search_v2(request):
                     if submenu := list(found):
                         # replace submenu !!
                         menu['rows'] = submenu[0]['rows']
-
     #chart api return month/year/datasey facet 
     if is_chart :
         charts_year=[]
         charts_month=[]
         charts_dataset=[]
-        for x in new_menus:
-            if x['key'] == 'month':
-                charts_month = x['rows']
-            if x['key'] == 'dataset':
-                charts_dataset = x['rows']
-            if x['key'] == 'year':
-                charts_year = x['rows']
+        menus = solr.get_menus()
+        for menu in menus:
+            if menu['key'] == 'month':
+                for month in range(1, 13):
+                    count = 0
+                    for x in menu['rows']:
+                        if str(x['key']) == str(month):
+                            count = x['count']
+
+                    charts_month.append({
+                        'key': str(month),
+                        'label': str(month),
+                        'count': count
+                    })
+            if menu['key'] == 'year':
+                for x in menu['rows']:
+                    if int(x['key']) > 1784:
+                        charts_year.append({
+                        'key': x['key'],
+                        'label': x['label'],
+                        'count': x['count']
+                    })
+            if menu['key'] == 'dataset':
+                for x in menu['rows']:
+                    charts_dataset.append({
+                        'key': x['key'],
+                        'label': x['label'],
+                        'count': x['count']
+                    })
 
         ret = {
             'charts': [
@@ -452,27 +472,27 @@ def search_occurrence(request, cat=''):
         menu_list = [
             {
             'key': 'countrycode',
-                'label': '國家/區域',
+                'label': '國家/區域 Country or Area',
                 'rows': [{'label': x['label'], 'key': x['label'] } for x in COUNTRY_ROWS]
             },
             {
                 'key': 'year',
-                'label': '年份',
+                'label': '年份 Year',
                 'rows': YEAR_ROWS
             },
             {
                 'key': 'month',
-                'label': '月份',
+                'label': '月份 Month',
                 'rows': [{'label': '{}月'.format(x),'key': x} for x in range(1, 13)]
             },
             {
                 'key': 'dataset',
-                'label': '資料集',
+                'label': '資料集 Dataset',
                 'rows': dataset_menu,
             },
             {
                 'key':'publisher',
-                'label': '發布單位',
+                'label': '發布單位 Publisher',
                 'rows': publisher_rows
             }
         ]
@@ -627,8 +647,6 @@ def search_dataset(request):
     ds_menu = DatasetSearch([]) 
 
     if has_menu:
-
-        #publisher_query = Dataset.objects\
         publisher_query = ds_search.query\
             .values('organization','organization_name')\
             .exclude(organization__isnull=True)\
@@ -675,17 +693,17 @@ def search_dataset(request):
         menu_list = [
             {
                 'key':'publisher',
-                'label': '發布單位',
+                'label': '發布單位 Publisher',
                 'rows': publisher_rows
             },
             {
                 'key': 'country',
-                'label': '分布地區/國家',
+                'label': '分布地區/國家 Publishing Country or Area',
                 'rows': country_rows
             },
             {
                 'key': 'rights',
-                'label': '授權類型',
+                'label': '授權類型 Licence',
                 'rows': rights_rows
             }
         ]
@@ -715,7 +733,7 @@ def search_publisher(request):
         menu_list = [
             {
                 'key': 'countrycode',
-                'label': '國家/區域',
+                'label': '國家/區域 Country or Area',
                 'rows': [{'label': DATA_MAPPING['country'][x['country_code']], 'count': x['count'], 'key': x['country_code'] } for x in country_list]
             },
         ]
@@ -723,7 +741,7 @@ def search_publisher(request):
         menus = [
             {
                 'key': 'country_code',
-                'label': '國家/區域',
+                'label': '國家/區域 Country or Area',
                 'rows': [{'label': DATA_MAPPING['country'][x['country_code']], 'key': x['country_code'], 'count': x['count']} for x in country_list]
             },
         ]
@@ -765,7 +783,7 @@ def search_species(request):
             # },
             {
                 'key': 'rank',
-                'label': '分類位階',
+                'label': '分類位階 Rank',
                 'rows': [{
                     'key': x['key'],
                     'label': x['label'],
@@ -773,7 +791,7 @@ def search_species(request):
             },
             {
                 'key': 'status',
-                'label': '學名狀態',
+                'label': '學名狀態 Status',
                 'rows': [
                     {'label': '有效的', 'key': 'accepted'},
                     {'label': '同物異名', 'key': 'synonym'}
@@ -801,12 +819,12 @@ def data_stats(request):
     query = Dataset.objects
     if is_most:
         query = query.filter(is_most_project=True)
-    rows = query.all()
-
+        
+    rows = query.filter(status__contains='PUBLIC')
     hdata = {}
     current_year_data = {
-        'dataset': [{'x': '{}月'.format(x), 'y': 0} for x in range(1, 13)],
-        'occurrence': [{'x': '{}月'.format(x), 'y': 0} for x in range(1, 13)]
+        'dataset': [{'x': '{}'.format(x), 'y': 0} for x in range(1, 13)],
+        'occurrence': [{'x': '{}'.format(x), 'y': 0} for x in range(1, 13)]
     }
     history_data = {
         'dataset': [],
@@ -820,17 +838,16 @@ def data_stats(request):
         if str(current_year) == y:
             m = i.created.month
             current_year_data['dataset'][m-1]['y'] += 1
-            current_year_data['occurrence'][m-1]['y'] += i.num_occurrence
+            current_year_data['occurrence'][m-1]['y'] += i.num_record
         if y not in hdata:
             hdata[y] = {
-                'dataset': 0,
-                'occurrence': 0
-            }
+                'dataset': 1,
+                'occurrence': i.num_record
+            } 
         else:
             hdata[y]['dataset'] += 1
-            hdata[y]['occurrence'] += i.num_occurrence
-
-    # print (hdata)
+            hdata[y]['occurrence'] += i.num_record
+            
     sorted_year = sorted(hdata)
     accu_ds = 0
     accu_occur = 0

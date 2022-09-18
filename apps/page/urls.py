@@ -15,8 +15,8 @@ from .views import robots_txt
 
 # Dictionary containing your sitemap classes
 sitemaps = {
-    'dataset': DatasetSitemap(),
-    'static': StaticSitemap(),
+    'static': StaticSitemap,
+    'dataset': DatasetSitemap,
 }
 
 
@@ -34,16 +34,15 @@ urlpatterns = [
     path('contact-us', views.contact_us, name='contact_us'),
     path('plans', views.plans, name='plans'),
     path('links', views.links, name='links'),
-    path('about-tibif', views.about_taibif, name='about_taibif'),
+    path('about-taibif', views.about_taibif, name='about_taibif'),
     path('about-gbif', views.about_gbif, name='about_gbif'),
     path('open-data', views.open_data, name='open_data'),
     path('data-stats', views.data_stats, name='data_stats'),
     path('export_csv',views.export_csv, name='export_csv'),
     path('i18n/', include('django.conf.urls.i18n')),
     ## Kuan Yu added for sitemap
-    path('sitemap.xml', sitemap, {'sitemaps': sitemaps},
-     name='django.contrib.sitemaps.views.sitemap'),
-    path("robots.txt", robots_txt),
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
+    # path("robots.txt", robots_txt),
     #path('test', views.test, name='test'),
     path('bar_chart', views.bar_chart, name='bar_chart'),
 

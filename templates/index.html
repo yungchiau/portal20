@@ -5,7 +5,7 @@
 {% load i18n %}
 
 
-{% block title %}首頁{% endblock %}
+{% block title %}臺灣生物多樣性機構{% endblock %}
 
 {% block script %}
 <script>
@@ -114,7 +114,7 @@
         <div class="col-xs-12 col-sm-6 col-md-3">
           <div class="data-wall-ctn">
             <span class="dtat-wall-name">{% trans "出現紀錄" %}</span>
-            <span class="data-wall-numbers">5,267,018</span> <!--手動更改數字 {{ stats.num_occurrence|intcomma }}-->
+            <span class="data-wall-numbers"><a href="/occurrence/search/" >{{occ_num|intcomma:False}}</a></span> <!--手動更改數字 {{ stats.num_occurrence|intcomma }}-->
             {#<span class="dtat-wall-name">於 TaiBIF 公開之資料</span>#}
             <span class="data-wall-icon myicon icon-data-stats"></span>
           </div>
@@ -123,7 +123,7 @@
         <div class="col-xs-12 col-sm-6 col-md-3">
           <div class="data-wall-ctn">
             <span class="dtat-wall-name">{% trans "資料集" %}</span>
-            <span class="data-wall-numbers">130</span> <!--手動更改數字{{ stats.num_dataset|intcomma }} -->
+            <span class="data-wall-numbers"><a href="/dataset/search/" >{{dataset_num|intcomma}}</a></span> <!--手動更改數字{{ stats.num_dataset|intcomma }} -->
             {#<span class="dtat-wall-name">於 TaiBIF 公開之資料集（含部分資訊缺漏之資料集）</span>#}
             <span class="data-wall-icon myicon icon-data-folder"></span>
           </div>
@@ -132,7 +132,7 @@
         <div class="col-xs-12 col-sm-6 col-md-3">
           <div class="data-wall-ctn">
             <span class="dtat-wall-name">{% trans "涵蓋物種數" %}</span>
-            <span class="data-wall-numbers">70234</span> <!--手動更改數字{{ stats.num_species|intcomma }} -->
+            <span class="data-wall-numbers"><a href="/species/search/" >70,234</a></span> <!--手動更改數字{{ stats.num_species|intcomma }} -->
             {#<span class="dtat-wall-name">出現紀錄涵蓋物種數（包含部分國外資料及同物異名）</span>#}
             <span class="data-wall-icon myicon icon-data-tw"></span>
           </div>
@@ -140,11 +140,11 @@
         </div>
         <div class="col-xs-12 col-sm-6 col-md-3">
           <div class="data-wall-ctn">
-            <a href="{% url 'data_stats' %}?most=1">
+            <a href="{% url 'data_stats' %}">
             <span class="dtat-wall-name">{% trans "看更多" %}</span>
-            <span class="data-wall-numbers"><small>{% trans "資料發布狀況" %}</small></span>
+            <span class="data-wall-numbers"><small>{% trans "資料發布狀況" %}</small></span> <!--手動更改數字{{ stats.num_dataset|intcomma }} -->
             {#<span class="dtat-wall-name"><br/></span>#}
-            <span class="data-wall-icon myicon icon-arrow-right"></span>
+            <span class="data-wall-icon myicon icon-arrow-right" ></span>
             </a>
           </div>
         </div>
@@ -242,7 +242,7 @@
 
   <!-- Topic board begin -->
   <div class="topic-board-wrapper">
-    <h1 class="heading-xlg-center">專題文章</h1>
+    <h1 class="heading-xlg-center">{% trans 專題文章 %} </h1>
     <div class="container">
       <div class="owl-carousel owl-theme" id="topic-board">
         {% for i in topic_list %}
@@ -269,36 +269,34 @@
 
   <!-- Partners board begin -->
   <div class="container">
-    <h1 class="heading-xlg-center">{% trans 指導單位 %}</h1>
-    <ul class="row partner-list-ctn">
-      <li class="col-xs-6">
-        <a href="https://www.most.gov.tw/" target="_blank"><img src="{% static 'images/logo-most.jpg' %}"></a>
+    <h1 class="heading-xlg-center">{% trans "指導單位" %}</h1>
+    <ul class="row advisor-list-ctn">
+      <li class="col-xs-6"   style="width:32%">
+        <a href="https://www.nstc.gov.tw/" target="_blank"><img src="{% static 'images/logo-nstc.png' %}"></a>
       </li>
-      <li class="col-xs-6">
+      <li class="col-xs-6"   style="width:25%">
         <a href="https://www.coa.gov.tw/" target="_blank"><img src="{% static 'images/logo-coa.jpg' %}"></a>
       </li>
-      <li class="col-xs-6">
-        <a href="http://www.biodiv.tw/" target="_blank"><img src="{% static 'images/logo-brcas.jpg' %}"></a>
+      <li class="col-xs-6"   style="width:19%">
+        <a href="http://www.biodiv.tw/" target="_blank"><img src="{% static 'images/logo-brcas.png' %}"></a>
       </li>
-      <li class="col-xs-6">
-        <a href="https://www.sinica.edu.tw/ch" target="_blank"><img src="{% static 'images/logo-sinica.jpg' %}"></a>
+      <li class="col-xs-6"   style="width:22%">
+        <a href="https://www.sinica.edu.tw/ch" target="_blank"><img src="{% static 'images/logo-sinica.png' %}"></a>
       </li>
     </ul>
-    <h1 class="heading-xlg-center">{% trans 夥伴組織 %}</h1>
-    <ul class="row partner-list-ctn" width = "50%">
+    <h1 class="heading-xlg-center">{% trans "夥伴組織" %}</h1>
+    <ul class="row partner-list-ctn">
       <li class="col-xs-6">
         <a href="https://www.forest.gov.tw/" target="_blank"><img src="{% static 'images/logo-forest-mark.png' %}" ></a>
       </li>
       <li class="col-xs-6">
         <a href="https://tesri.tesri.gov.tw/show_index.php" target="_blank"><img src="{% static 'images/logo-endemic-mark.png' %}"></a>
       </li>
-    </ul>
-    <ul class="row partner-list-ctn">
       <li class="col-xs-6">
         <a href="https://www.cpami.gov.tw" target="_blank"><img width='80%'src="{% static 'images/logo-cpami.png' %}"></a>
       </li>
       <li class="col-xs-6">
-        <a href="https://www.oca.gov.tw/ch/index.jsp" target="_blank"><img src="{% static 'images/logo-oca.png' %}"></a>
+        <a href="https://www.oca.gov.tw/ch/index.jsp" target="_blank"><img src="{% static 'images/logo-oca.jpeg' %}"></a>
       </li>
       <li class="col-xs-6">
         <a href="https://www.tfri.gov.tw/main/index.aspx" target="_blank"><img src="{% static 'images/logo-tfri.png' %}"></a>

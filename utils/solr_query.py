@@ -35,22 +35,18 @@ JSON_FACET_MAP = {
         },
         'month': {
             'type': 'terms',
-            'field':'month',
-            'start':'1',
-            'end':'13',
-            'gap':'1',
-            'limit': 12,
+            'field':'taibif_month',
+            'limit': -1,
             #'mincount': 0, cause solr error?
         },
         'year': {
             'type':'terms',
-            'field':'year',
-            'mincount': 0,
+            'field':'taibif_year',
             'limit': -1,
         },
         'country': {
             'type':'terms',
-            'field':'country',
+            'field':'taibif_country',
             'mincount': 0,
         },
         'publisher': {
@@ -68,34 +64,40 @@ JSON_FACET_MAP = {
             'type':'terms',
             'field':'taibif_county',
         },
+         'taxon_id': {
+            'type':'terms',
+            'field':'taxon_id',
+            'mincount': 1,
+            'limit': -1,
+        },
     }
 }
 
 CODE_MAPPING ={
     'county':{
-        0 : '其他',
-        1 : '臺北市',
-        2 : '臺中市',
-        3 : '基隆市',
-        4 : '臺南市',
-        5 : '高雄市',
-        6 : '新北市',
-        7 : '宜蘭縣',
-        8 : '桃園市',
-        9 : '嘉義市',
-        10 : '新竹縣',
-        11 : '苗栗縣',
-        12 : '南投縣',
-        13 : '彰化縣',
-        14 : '新竹市',
-        15 : '雲林縣',
-        16 : '嘉義縣',
-        17 : '屏東縣',
-        18 : '花蓮縣',
-        19 : '臺東縣',
-        20 : '金門縣',
-        21 : '澎湖縣',
-        22 : '連江縣',
+        None : '其他',
+        'Taipei' : '臺北市',
+        'Taichung' : '臺中市',
+        'Keelung' : '基隆市',
+        'Tainan' : '臺南市',
+        'Kaohsiung' : '高雄市',
+        'New Taipei' : '新北市',
+        'Yilan' : '宜蘭縣',
+        'Taoyuan' : '桃園市',
+        'Chiayi City' : '嘉義市',
+        'Hsinchu County' : '新竹縣',
+        'Miaoli' : '苗栗縣',
+        'Nantou' : '南投縣',
+        'Changhua' : '彰化縣',
+        'Hsinchu City' : '新竹市',
+        'Yulin' : '雲林縣',
+        'Chiayi County' : '嘉義縣',
+        'Pingtung' : '屏東縣',
+        'Hualien' : '花蓮縣',
+        'Taitung' : '臺東縣',
+        'Kinmen' : '金門縣',
+        'Penghu' : '澎湖縣',
+        'Lienkiang' : '連江縣',
     }
     
 }
@@ -195,7 +197,7 @@ class SolrQuery(object):
 
         self.solr_tuples.append(('q', self.solr_q))
         self.solr_tuples.append(('rows', self.rows)) #TODO remove redundant key['rows']
-
+ 
         if len(self.facet_values):
             self.solr_tuples.append(('facet', 'true'))
             s = ''
@@ -207,21 +209,20 @@ class SolrQuery(object):
                     #flist.append('{}:{}'.format(i, JSON_FACET_MAP[self.core][i]))
             s = ','.join(flist)
             self.solr_tuples.append(('json.facet', '{'f'{s}''}'))
-
+            
         query_string = urllib.parse.urlencode(self.solr_tuples)
         self.solr_url = f'{SOLR_PREFIX}{self.core}/select?{query_string}'
         return self.solr_url
 
     def request(self, req_lists=[]):
         self.generate_solr_url(req_lists)
-
         try:
             resp =urllib.request.urlopen(self.solr_url)
             resp_dict = resp.read().decode()
             self.solr_response = json.loads(resp_dict)
         except urllib.request.HTTPError as e:
             self.solr_error = str(e)
-
+            
         return {
             'solr_response': self.solr_response,
             'solr_error': self.solr_error,
@@ -239,7 +240,7 @@ class SolrQuery(object):
         is_last = False
         if resp['start'] + int(self.rows) >= resp['numFound']:
             is_last = True
-
+            
         for i in resp['docs']:
             i['taibif_occurrence_id'] = i['taibif_occ_id']
         return {
@@ -282,18 +283,23 @@ class SolrQuery(object):
             rows = [{'key': x['val'], 'label': x['val'], 'count': x['count']} for x in data['buckets']]
             menus.append({
                 'key': 'country', #'countrycode',
-                'label': '國家/區域',
+                'label': '國家/區域 Country or Area',
                 'rows': rows,
             })
             
         if data := resp['facets'].get('taibif_county', ''):
-            rows = [{'key': str(x['val']), 'label': CODE_MAPPING['county'][x['val']], 'count': x['count']} for x in data['buckets']]
+            rows = []
+            for x in data['buckets']:
+                if CODE_MAPPING['county'].get(x['val']):
+                    rows.append( {'key': str(x['val']), 
+                     'label': CODE_MAPPING['county'][x['val']],
+                     'count': x['count']})
             for x  in rows:
                 if x['key'] == '0':
                     rows.remove(x)
             menus.append({
                 'key':'taibif_county',
-                'label': '台灣縣市',
+                'label': '台灣縣市 Taiwan City or County',
                 'rows': rows,
             })
             
@@ -303,14 +309,14 @@ class SolrQuery(object):
             # TODO
             menus.append({
                 'key': 'year',
-                'label': '年份',
+                'label': '年份 Year',
                 'rows':rows,
             })
         if data := resp['facets'].get('month', ''):
             rows = [{'key': x['val'], 'label': x['val'], 'count': x['count']} for x in sorted(data['buckets'], key=lambda x: x['val'])]
             menus.append({
                 'key': 'month',
-                'label': '月份',
+                'label': '月份 Month',
                 'rows': rows,
             })
         if data := resp['facets'].get('dataset', ''):
@@ -326,21 +332,21 @@ class SolrQuery(object):
             # rows = [{'key': x['val'], 'label': x['val'], 'count': x['count']} for x in data['buckets']]
             menus.append({
                 'key': 'dataset',
-                'label': '資料集',
+                'label': '資料集 Dataset',
                 'rows': rows,
             })
         if data := resp['facets'].get('publisher', ''):
             rows = [{'key': x['val'], 'label': x['val'], 'count': x['count']} for x in data['buckets']]
             menus.append({
                 'key':'publisher',
-                'label': '發布單位',
+                'label': '發布單位 Publisher',
                 'rows': rows,
             })
         if data := resp['facets'].get('license', ''):
             rows = [{'key': x['val'], 'label': x['val'], 'count': x['count']} for x in data['buckets']]
             menus.append({
                 'key':'license',
-                'label': 'CC授權',
+                'label': '授權類型 Licence',
                 'rows': rows,
             })
             

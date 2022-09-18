@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 {% load static %}
 {% load humanize %}
+{% load i18n %}
+
+{% get_current_language as LANGUAGE_CODE %}
 
 {% block title %}
 資料發布狀況
@@ -34,7 +37,7 @@ svg text.label {
 
 {% if env == "dev" %}
 <script src="{% static 'js/dataset-table.dev.js' %}"></script>
-{% elif env == "prod" %}
+{% elif env == "prod" or env == "stag" %}
 <script src="{% static 'js/dataset-table.min.js' %}"></script>
 {% endif %}
 
@@ -53,9 +56,10 @@ svg text.label {
 {% endblock %}
 
 {% block main %}
-{% include "inc_breadcrumb.html" with tab="01" active_label="資料發布狀況" %}
 
-<div class="container">
+{% if LANGUAGE_CODE == "zh-hant" %}
+{% include "inc_breadcrumb.html" with tab="01" active_label="資料發布狀況" %}
+<div class="container" lang="zh-hant" >
   <div class="row">
     <h1 class="heading-lg-ul">
       資料發布狀況
@@ -65,8 +69,8 @@ svg text.label {
       <label class="custom-input-ctn">
         <input type="checkbox" class="check-most"{% if request.GET.most %} checked{% endif %}>
         <span class="checkmark"></span>
-        僅檢視科技部發布狀況
-        (TaiBIF 的資料庫及基礎建設乃由科技部之經費及相關計畫支持，勾選此項可了解科技部生物多樣性計畫物種資料開放狀況)
+        僅檢視國科會發布狀況
+        (TaiBIF 的資料庫及基礎建設乃由國科會之經費及相關計畫支持，勾選此項可了解國科會生物多樣性計畫物種資料開放狀況)
       </label>
     </div>
 
@@ -101,7 +105,60 @@ svg text.label {
       </div>
     </div>
 
-    <div id="dataset-table-container"></div>
+    <div id="dataset-table-container" lang="zh-hant"></div>
   </div>
 </div>
+{% endif %}
+{% if LANGUAGE_CODE == "en" %}
+{% include "inc_breadcrumb.html" with tab="01" active_label="Data Publishing Status" %}
+<div class="container" lang="en">
+  <div class="row">
+    <h1 class="heading-lg-ul">
+      Data Publishing Status
+      <span class="heading-footnote">All</span>
+    </h1>
+    <div class="heading-sort-ctn">
+      <label class="custom-input-ctn">
+        <input type="checkbox" class="check-most"{% if request.GET.most %} checked{% endif %}>
+        <span class="checkmark"></span>
+        View only the release status of Biodiversity-related projects funded under Taiwan National Science and Technology Council
+      </label>
+    </div>
+
+
+    <h3>Statistics</h3>
+
+    <div class="panel panel-default">
+      <div class="panel-heading">Occurrences uploaded this year</div>
+      <div class="panel-body">
+        <div id="taibif-stats__this_year_occurrence"></div>
+      </div>
+    </div>
+
+    <div class="panel panel-default">
+      <div class="panel-heading">Dataset uploaded this year</div>
+      <div class="panel-body">
+        <div id="taibif-stats__this_year_dataset"></div>
+      </div>
+    </div>
+
+    <div class="panel panel-default">
+      <div class="panel-heading">Accumulative data</div>
+      <div class="panel-body">
+        <div id="taibif-stats__trend_occurrence"></div>
+      </div>
+    </div>
+
+    <div class="panel panel-default">
+      <div class="panel-heading">Accumulative dataset</div>
+      <div class="panel-body">
+        <div id="taibif-stats__trend_dataset"></div>
+      </div>
+    </div>
+
+    <div id="dataset-table-container" lang={{LANGUAGE_CODE}}></div>
+  </div>
+</div>
+
+{% endif %}
 {% endblock %}

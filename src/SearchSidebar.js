@@ -3,13 +3,16 @@ import React, {useState, useRef} from 'react';
 //import Tree from "./components/Tree";
 import SearchTaxon from './SearchSidebarTaxon';
 // import IconButton from '@material-ui/core/IconButton';
-// import DeleteIcon from '@material-ui/icons/Delete';
+import {Delete} from '@material-ui/icons';
 import Slider from '@material-ui/core/Slider';
+import "./SearchKeyword.css";
 
 function Accordion(props) {
   const {content, onClick, filters} = props;
   const [isOpen, setOpenState] = useState(false);
-  const yearRange = [1900, 2021];// TODO: hard-coded
+  const [filteredData, setFilteredData] = useState([]);
+
+  const yearRange = [1795, 2022];// TODO: hard-coded
   let yearSelected = yearRange;
   filters.forEach((x) => {
     const [key, values] = x.split('=');
@@ -21,7 +24,7 @@ function Accordion(props) {
   const [yearValue, setYearValue] = useState(yearSelected);
 
   const sliderMarks = [];
-  for (let i=1900; i<2022; i++) {
+  for (let i=1795; i<2023; i++) {
     sliderMarks.push({value: i, label: i});
   }
 
@@ -36,8 +39,11 @@ function Accordion(props) {
   };
   const clearYearCondition = (event) => {
     console.log(event, content.key)
+    yearSelected = [1795, 2022]
+    setYearValue(yearSelected)
     props.clearCondition(event,content.key)
   };
+  
   const menuItems = content.rows.map((x) => {
     if(content.key ===  'year'){
       console.log(yearValue);
@@ -49,26 +55,23 @@ function Accordion(props) {
       // console.log(content.key, handleChange)
       return (
           <div className="year_slider" key={x}>
-            <div > 
-              <IconButton aria-label="delete" onClick={clearYearCondition} >
-                <DeleteIcon  />
-              </IconButton>
-            </div>
-          <Slider
-        value={yearValue}
-        onChange={(e, newRange) => setYearValue(newRange)}
-        onChangeCommitted={handleSliderCommitted}
-        max={yearRange[1]}
-        min={yearRange[0]}
-        valueLabelDisplay="auto"
-        aria-labelledby="range-slider"
+          <Delete  style={{ position: 'absolute', right: 1 , width:'10%'}} onClick={clearYearCondition} />
+          
+          <Slider 
+            style={{width:'90%'}}
+            value={yearValue}
+            onChange={(e, newRange) => setYearValue(newRange)}
+            onChangeCommitted={handleSliderCommitted}
+            max={yearRange[1]}
+            min={yearRange[0]}
+            valueLabelDisplay="auto"
+            aria-labelledby="range-slider"
           />
           </div>
       );
     } else{   
       const count = (x.count) >=0 ? x.count.toLocaleString() : null;
       const itemChecked = filters.has(`${content.key}=${x.key}`);
-
       return (
           <div className="search-sidebar-checkbox-wrapper" key={x.key}>
             <label className="custom-input-ctn">
@@ -83,6 +86,19 @@ function Accordion(props) {
       );
     }
   });
+
+  const handleFilter = (event) =>{
+    const searchWord = event.target.value
+    const newFilter = content.rows.filter((value)=>{
+      return value.label.toLowerCase().includes(searchWord.toLowerCase())
+    });
+
+    if (searchWord ===""){
+      setFilteredData([]);
+    }else{
+      setFilteredData(newFilter);
+    }
+  };
   return (
     <React.Fragment>
     <div className="search-sidebar-accordion-wrapper">
@@ -93,6 +109,25 @@ function Accordion(props) {
       </div>
       { isOpen ?
       <div className="search-sidebar-accordion-content collapse in">
+        {content.label == '資料集 Dataset'?
+        <div className="searchInputs">
+        <input type="text" placeholder="Search..." onChange={handleFilter} />
+        {/* <div className="searchIcon"> </div> */}
+        </div>
+        :null
+        }        
+        {filteredData.length !=0 && (
+        <div className="dataResult" style={{zIndex:'9999',position:'absolute'}} >
+          
+          {filteredData.slice(0,15).map((value, key) => {
+            
+            const itemChecked = filters.has(`${content.key}=${value.key}`);
+            return (<div className="dataItem" key={key} onClick={(e)=> {e.persist(); onClick(e, content.key, value.key);}} >
+               <p checked={!itemChecked}>{value.label}</p>
+            </div>
+          )})}
+        </div>
+        )}
         {menuItems}
       </div>
     : null}
@@ -107,10 +142,19 @@ function SearchSidebar(props) {
   const [queryKeyword, setQueryKeyword] = useState(props.queryKeyword);
   
   if (props.searchType === 'dataset') {
-    searchTypeLabel = '資料集';
+    if (props.language === 'zh-hant') {
+      searchTypeLabel = '資料集';
+    } else if (props.language === 'en'){
+      searchTypeLabel = 'Dataset';
+    }
   }
   else if (props.searchType === 'occurrence') {
-    searchTypeLabel = '出現紀錄';
+    if (props.language === 'zh-hant') {
+      searchTypeLabel = '出現紀錄';
+    } else if (props.language === 'en'){
+      searchTypeLabel = 'Occurrence';
+    }
+    
     isOccurrence = true;
 
     //const scientificNameContent = <SearchTaxon {...props.taxonProps} />;
@@ -118,10 +162,20 @@ function SearchSidebar(props) {
     //searchTaxonContainer = <SearchTaxon {...props.taxonProps} />;
   }
   else if (props.searchType === 'species') {
-    searchTypeLabel = '物種';
+    if (props.language === 'zh-hant') {
+      searchTypeLabel = '物種';
+    } else if (props.language === 'en'){
+      searchTypeLabel = 'Species';
+    }
+    
   }
   else if (props.searchType === 'publisher') {
-    searchTypeLabel = '發布單位';
+    if (props.language === 'zh-hant') {
+      searchTypeLabel = '發布單位';
+    } else if (props.language === 'en'){
+      searchTypeLabel = 'Publisher';
+    }
+    
   }
 
   let filterCount = 0;
@@ -166,6 +220,13 @@ function SearchSidebar(props) {
       accordionList.push(<Accordion key={m.key} content={m} onClick={props.onClick} filters={props.filters} clearCondition={props.clearCondition}/>);
     });
   }
+  let formControlPlaceholder = '';
+  if (props.language === 'zh-hant') {
+    formControlPlaceholder = '搜尋關鍵字';
+  } else if (props.language === 'en'){
+    formControlPlaceholder = 'Keyword Search';
+  }
+
   return (
       <div className="search-sidebar">
         <div className="modal right fade modal-search-side-wrapper" id="flowBtnModal" tabIndex="-1" role="dialog">
@@ -179,7 +240,7 @@ function SearchSidebar(props) {
                 </div>
               </div>
               <div className="input-group search-sidebar-header-kw">
-      <input className="form-control" placeholder="搜尋關鍵字" name="search-term" id="search-term" type="text" value="" value={queryKeyword} onChange={handleChangeKeyword} onKeyPress={props.onKeyPressKeyword} />
+      <input className="form-control" placeholder={formControlPlaceholder} name="search-term" id="search-term" type="text" value={queryKeyword} onChange={handleChangeKeyword} onKeyPress={props.onKeyPressKeyword} />
                 <div className="input-group-btn">
       <button className="btn" type="submit" onClick={(e)=>props.onClickSubmitKeyword(e, queryKeyword)}>
                     <i className="glyphicon glyphicon-search"></i>
