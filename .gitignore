@@ -10,6 +10,7 @@ media
 # Environment variables
 .env
 .env.*
+django_venv
 
 # Static files
 node_modules
@@ -25,3 +26,6 @@ csvData
 
 static/js/search.*
 static/js/dataset-table.*
+
+# django_canlendar assets
+static/calendar_assets
