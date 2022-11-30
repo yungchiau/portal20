@@ -71,7 +71,7 @@ INSTALLED_APPS = [
     'corsheaders',
     # Yung-Chiau added for calendar
     'schedule',
-    'calendar',
+    
 
 ]
 
