@@ -62,12 +62,17 @@ INSTALLED_APPS = [
     'apps.data.apps.DataConfig',
     'apps.article.apps.ArticleConfig',
     'apps.page.apps.PageConfig',
+    'apps.calendar.apps.CalendarConfig',
     # third party
     'django_ses',
     # Kuan Yu added for sitemap
     'django.contrib.sites',
     'django.contrib.sitemaps',
     'corsheaders',
+    # Yung-Chiau added for calendar
+    'schedule',
+    'calendar',
+
 ]
 
 SITE_ID = 1

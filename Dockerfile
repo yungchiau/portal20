@@ -34,10 +34,15 @@ RUN pip install --upgrade pip
 RUN pip install --no-cache-dir pipenv
 COPY Pipfile Pipfile.lock ./
 RUN pipenv install --system
+RUN pip install django-scheduler
+
 
 # install frontend packages
 COPY package.json package-lock.json ./
 RUN npm install
+# Yung-Chiau added for calendar
+RUN npm install jquery-ui
+RUN npm install fullcalendar@3.8.2
 
 COPY . .
 

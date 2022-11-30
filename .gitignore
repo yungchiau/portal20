@@ -28,4 +28,7 @@ static/js/search.*
 static/js/dataset-table.*
 
 # django_canlendar assets
-static/calendar_assets
+static/calendar_assets/*
+apps/calendar/assets/
+xaa_date.csv
+apps/calendar/management/
