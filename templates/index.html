@@ -6,9 +6,20 @@
 
 
 {% block title %}臺灣生物多樣性機構{% endblock %}
+{% block head %}
+<link rel='stylesheet' type='text/css' href="{% static 'calendar_assets/fullcalendar/dist/fullcalendar.css' %}" />
+
+{% endblock %}
 
 {% block script %}
+
+<script type='text/javascript' src="{% static 'calendar_assets/jquery/dist/jquery.js' %}"></script>
+
+<script type='text/javascript' src="{% static 'calendar_assets/moment/moment.js' %}"></script>
+<script type='text/javascript' src="{% static 'calendar_assets/fullcalendar/dist/fullcalendar.js' %}"></script>
+
 <script>
+
   $(document).ready(function() {
     // TODO why?
     const ele = document.querySelector('.search-q');
@@ -17,6 +28,19 @@
       //result.textContent = `You like ${event.target.value}`;
       //console.log(event.target);
     });
+  });
+
+
+  $(document).ready(function() {
+  
+      // page is now ready, initialize the calendar...
+      $('#calendar').fullCalendar({
+          // put your options and callbacks here
+          left:   'Calendar',
+            center: '',
+            right:  'today prev,next'
+            });
+  
   });
 </script>
 {% endblock %}
@@ -304,6 +328,14 @@
     </ul>
   </div>
   <!-- Partners board end -->
+  <!-- Django calendar start -->
+  <div class="container">
+    <h1 class="heading-xlg-center">{% trans "Calendar" %}</h1>
+    <div id="calendar"></div>
+  </div>
+
+
+  <!-- Django calendar end -->
   {% comment %}
   <!-- full calendar -->
   <script src="js/fullcalendar/core-main.min.js"></script>
