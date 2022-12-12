@@ -7,19 +7,14 @@
 
 {% block title %}臺灣生物多樣性機構{% endblock %}
 {% block head %}
-<link rel='stylesheet' type='text/css' href="{% static 'calendar_assets/fullcalendar/dist/fullcalendar.css' %}" />
+<!-- Calendar stylesheet -->
 
 {% endblock %}
 
 {% block script %}
 
-<script type='text/javascript' src="{% static 'calendar_assets/jquery/dist/jquery.js' %}"></script>
-
-<script type='text/javascript' src="{% static 'calendar_assets/moment/moment.js' %}"></script>
-<script type='text/javascript' src="{% static 'calendar_assets/fullcalendar/dist/fullcalendar.js' %}"></script>
 
 <script>
-
   $(document).ready(function() {
     // TODO why?
     const ele = document.querySelector('.search-q');
@@ -30,19 +25,25 @@
     });
   });
 
-
-  $(document).ready(function() {
-  
-      // page is now ready, initialize the calendar...
-      $('#calendar').fullCalendar({
-          // put your options and callbacks here
-          left:   'Calendar',
-            center: '',
-            right:  'today prev,next'
-            });
-  
-  });
 </script>
+
+<!-- calendar script -->
+<script type='text/javascript' src="{% static 'calendar_assets/moment/moment.js' %}"></script>
+<script type='text/javascript' src="{% static 'calendar_assets/fullcalendar/dist/fullcalendar.js' %}"></script>
+
+<script>
+$(document).ready(function() {
+  
+  // page is now ready, initialize the calendar...
+  $('#calendar').fullCalendar({
+      // put your options and callbacks here
+  events: '/schedule/api/occurrences?calendar_slug=test'
+
+});
+});
+</script>
+
+
 {% endblock %}
 
 {% block main %}
@@ -328,13 +329,12 @@
     </ul>
   </div>
   <!-- Partners board end -->
+
   <!-- Django calendar start -->
   <div class="container">
-    <h1 class="heading-xlg-center">{% trans "Calendar" %}</h1>
-    <div id="calendar"></div>
+    <h1 class="heading-xlg-center">{% trans "活動日程" %}</h1>
+    <div id="calendar" style="background-color:rgba(120, 97, 69, 0.502); padding: 1rem;" >Note:</div>
   </div>
-
-
   <!-- Django calendar end -->
   {% comment %}
   <!-- full calendar -->
@@ -389,4 +389,6 @@
 <!-- script 4 full calendar end -->
 {% endcomment %}
 {% endblock %}
+
+
 

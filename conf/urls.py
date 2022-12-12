@@ -17,6 +17,11 @@ from django.contrib import admin
 from django.urls import path, re_path, include
 from django.views.static import serve
 
+from django.views.generic import TemplateView
+from django.conf import settings
+
+
+
 from conf import settings
 from apps.data.views import (
     occurrence_view,
@@ -58,6 +63,10 @@ urlpatterns = [
     # path('test_y/', ChartYear, name='ChartYear'),
     # path('test_m/', ChartMonth, name='ChartMonth'),
     # path('taxon_bar/', taxon_bar, name='taxon_bar'),
+    
+    ##Yung-Chiau added for calendar
+    path('schedule/', include('schedule.urls')),
+    
 
     ]
 
