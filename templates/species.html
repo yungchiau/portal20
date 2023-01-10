@@ -23,17 +23,23 @@
     $(document).ready(function() {
       var owl = $('#speciesGallery');
       owl.owlCarousel({
-        nav: false,
+        nav: true,
         dots: false,
         loop: true,
         autoplay: true,
-        autoplayTimeout: 3000,
+        autoplayTimeout: 5000,
         autoplayHoverPause: true,
-        items : 1,
-        animateOut: 'fadeOut',
         thumbs: true,
-        thumbImage: true,
+        margin: 10,
         lazyLoad : true,
+        responsive: {
+          0: {
+            items: 1 // 螢幕大小為 0~600 顯示 1 個項目
+          },
+          1000: {
+            items: 3 // 螢幕大小為 1000 以上 顯示 5 個項目
+          }
+        }
       })
     })
   </script>
@@ -157,17 +163,17 @@
           <thead>
             <tr>
               <th>資料集</th>
-              <th>出現次數</th>
+              <th>紀錄筆數</th>
               <!-- <th>&nbsp;</th> -->
             </tr>
           </thead>
           <tbody>
 
             {% for set in dataset %}
-
+            
             <tr>
-              <td><a href="{% url 'dataset-detail'  name=set.name %}">{{ set.name_zh }}</a></td>
-              <td>{{ set.count }}</td>
+              <td><a href="{% url 'dataset-detail' name=set.name %}">{{ set.name_zh }}</a></td>
+              <td><a href="{% url 'search-occurrence' cat='search'  %}?taxon_key={{taxon.rank}}:{{ taxon.id }}&dataset={{set.name}}">{{ set.count|intcomma:False }}</td>
               <!-- <td> -->
 <!-- 占比 -->
                 <!-- <div class="chart-bar-h-bg">
@@ -191,16 +197,24 @@
         {% if taxon.taieol_desc %}
         {{taxon.taieol_desc}}
         {% endif %}
-
+        <hr>
         <!-- carousel photos begin -->
           <div class="owl-carousel owl-theme" id="speciesGallery">
             {% for i in taxon.species_pic %}
-              {% if i.taieol_pic %}
-                <div>
-                  <img  src="{{i.taieol_pic}}">
-                  <div class="home-banner-cover-license">{{i.name}} {% if i.name_zh %} {{ i.name_zh }}{% endif %}</div>
-                </div>
-              {% endif %}
+            <div class="news-card-img-wrapper">
+              <div class="news-card-title-ctn">
+                {% if i.image_name%}
+                  <p class="img-license">{% if i.photographer %}{{i.photographer}}@{% endif %}TaiBIF 臺灣生物多樣性資訊機構-CC BY 4.0</p>
+                  </div>
+                  <div class="news-card-img-overlay"></div>
+                  <img src="/media/{{i.folder}}{{i.image_name}}" style="max-height:400px;" >
+                {% elif i.taieol_pic %}
+                  <p class="img-license">{% if i.photographer %}{{i.photographer}}@{% endif %}TaiEOL 生命大百科-CC BY 4.0</p>
+                  </div>
+                  <div class="news-card-img-overlay"></div>
+                  <img src="{{i.taieol_pic}}" style="max-height:400px;" >
+                {% endif%}
+            </div>
             {% endfor %}
           </div>
       <!-- TaiCol物種描述 end -->

@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}資料上傳{% endblock %}
+
+{% block head %}
+
+{% endblock %}
+{% block script %}
+<script>
+  $(document).ready(function() {
+    $('.pub-data-nav-item').click(function(){
+      const cat = $(this).data()['cat'];
+      $('.pub-data-nav-item').removeClass('active');
+      $(this).addClass('active');
+
+      $('.pub-data-content').addClass('hide');
+      $(`.pub-data-content[data-cat="${cat}"]`).removeClass('hide');
+    });
+  });
+</script>
+
+{% endblock %}
+
+{% block main %}
+  <!-- container begin -->
+  <div class="container">
+
+
+      {% if LANGUAGE_CODE == "zh-hant" %}
+      {% comment %} {% include "inc_breadcrumb.html" with tab="01" active_label="api"%} {% endcomment %}
+        <!-- row begin -->
+          <div class="col-sm-3 hidden-xs">
+            <ul class="schedule-flow-nav-wrapper">
+              {% include "taibif-api-nav-items.html" %}
+            </ul>
+          </div>
+          <!-- left nav end -->
+      <!-- right content begin -->
+        <div class="col-xs-12 col-sm-9 pub-data-content" data-cat="occurrence_api">
+          <h1 class="heading-lg-ul">
+            出現紀錄 Occurrence API
+          </h1>
+          {% comment %} <div class="pub-data-section">
+            <h4>相關參考連結：</h4>
+            <ul>
+              <li>DwC 資料欄位標準中文簡要說明：<a href="http://taibif.tw/download/Darwin_Core.pdf" target="_blank">Darwin Core (DwC) 資料欄位標準</a></li>
+            </ul>
+            </div> 
+            <div class="pub-data-section">
+            <blockquote>出現紀錄查詢</blockquote>
+          </div> {% endcomment %}
+
+          <div class="pub-data-section">
+          <h4>簡易查詢</h4>
+          <p>出現紀錄的基本資料，包含出現紀錄ID、學名、觀察記錄日期、經緯度、座標系統、座標誤差、座標是否有模糊化、座標模糊化程度、出現地、數量、數量單位、紀錄(採集)者、紀錄類型、資料集名稱、授權類型跟資料更新進TaiBIF時間。</p>
+          <table class="table table-striped table-bordered">
+            <thead>
+              <tr><th>Resource URL</th><th>請求方式 (Method)</th><th>回應資訊(Response)</th><th>資料描述(Description)</th><th>呼叫參數(Parameters)</th></tr>
+            </thead>
+            <tbody>
+            <tr><td>/api/v2/occurrence/basic_occ?</td><td>GET</td><td>Occurrence</td><td>取得出現紀錄的解釋資訊。</td><td>start_date, end_date, rows, offset</td></tr>
+            </tbody>
+          </table>
+
+          <h4>查詢參數說明</h4>
+          <table class="table table-striped table-bordered">
+            <thead>
+              <tr><th>參數名稱</th><th>參數描述</th><th>查詢範例</th></tr>
+            </thead>
+            <tbody>
+            <tr><td>start_date</td><td>資料最後修改開始日期</td><td>/api/v2/occurrence/basic_occ?start_date=2022-10-24</td></tr>
+            <tr><td>end_date</td><td>資料最後修改結束日期</td><td>/api/v2/occurrence/basic_occ?end_date=2022-10-24&rows=1</td></tr>
+            <tr><td>rows</td><td>回傳筆數，預設為10</td><td>/api/v2/occurrence/basic_occ?rows=10</td></tr>
+            <tr><td>offset</td><td>分頁，預設為0</td><td>/api/v2/occurrence/basic_occ?offset=1</td></tr>
+            </tbody>
+          </table>
+
+          <hr>
+          <h4>詳細查詢</h4>
+          <p>每筆出現紀錄的所有資訊，包含原始資料跟轉釋資料。</p>
+          <table class="table table-striped table-bordered">
+            <thead>
+              <tr><th>Resource URL</th><th>請求方式 (Method)</th><th>回應資訊(Response)</th><th>資料描述(Description)</th><th>呼叫參數(Parameters)</th></tr>
+            </thead>
+            <tbody>
+            <tr><td>/v2/occurrence/search</td><td>GET</td><td>Occurrence</td><td>取得出現紀錄的詳細資訊，包含原始及詮釋資料。</td><td>q, country, dataset, month, publisher, taibif_county, facet, rows, lat, lng</td></tr>
+            </tbody>
+          </table>
+
+          <h4>參數說明</h4>
+          <table class="table table-striped table-bordered">
+            <thead>
+              <tr><th>參數名稱</th><th>參數描述</th><th>查詢範例</th></tr>
+            </thead>
+            <tbody>
+            <tr><td>q</td><td>關鍵字查詢</td><td>/api/v2/occurrence/search?q=Zosterops japonicus</td></tr>
+            <tr><td>country</td><td>國家</td><td>/api/v2/occurrence/search?country=Taiwan</td></tr>
+            {% comment %} <tr><td>dataset</td><td>資料集</td><td>/api/v2/occurrence/search?dataset=Taiwan Wild Bird Federation Bird Records Database&dataset</td></tr> {% endcomment %}
+            <tr><td>month</td><td>月份</td><td>/api/v2/occurrence/search?month=2&month=9</td></tr>
+            {% comment %} <tr><td>publisher</td><td>資料集發布者</td><td>/api/v2/occurrence/search?publisher=</td></tr> {% endcomment %}
+            <tr><td>taibif_county</td><td>台灣縣市</td><td>/api/v2/occurrence/search?taibif_county=Chiayi County</td></tr>
+            {% comment %} <tr><td>facet</td><td>參數總計</td><td>/api/v2/occurrence/search?facet=year&facet=month&facet=dataset</td></tr> {% endcomment %}
+            <tr><td>rows</td><td>回傳筆數</td><td>/api/v2/occurrence/search?rows=1</td></tr>
+            <tr><td>lat&lng</td><td>座標查詢</td><td>/api/v2/occurrence/search?lat=-22.24829&lat=-14.21675&lng=-151.29169&lng=-142.59653</td></tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
+        
+
+        {% comment %} <div class="col-xs-12 col-sm-9 pub-data-content hide" data-cat="species_api">
+          <h1 class="heading-lg-ul">
+            物種 Species API
+          </h1>
+          <p>物種相關資訊</p>
+          <table class="table table-striped table-bordered">
+            <thead>
+              <tr><th>Resource URL</th><th>請求方式 (Method)</th><th>回應資訊(Response)</th><th>資料描述(Description)</th><th>呼叫參數(Parameters)</th></tr>
+            </thead>
+            <tbody>
+            <tr><td>/api/v1/taxon?</td><td>GET</td><td>Taxon</td><td>取得物種資訊。</td><td>id,name</td></tr>
+            </tbody>
+          </table>
+
+          <h4>查詢參數說明</h4>
+          <table class="table table-striped table-bordered">
+            <thead>
+              <tr><th>參數名稱</th><th>參數描述</th><th>查詢範例</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>id</td><td>taibif 物種 key </td><td>/api/v1/taxon?id=</td></tr>
+              <tr><td>name</td><td>taibif scientific name </td><td>/api/v1/taxon?name=</td></tr>
+            </tbody>
+          </table>
+        </div> {% endcomment %}
+
+        <div class="col-xs-12 col-sm-9 pub-data-content hide" data-cat="dataset_api">
+          <h1 class="heading-lg-ul">
+            資料集 Datset API
+          </h1>
+          <div class="pub-data-section">
+          {% comment %} <h4>相關參考連結：</h4>
+          <ul>
+            <li>DwC 資料欄位標準中文簡要說明：<a href="http://taibif.tw/download/Darwin_Core.pdf" target="_blank">Darwin Core (DwC) 資料欄位標準</a></li>
+          </ul> {% endcomment %}
+          </div>
+          <div class="pub-data-section">
+          <h4>查詢方式</h4>
+          <table class="table table-striped table-bordered">
+            <thead>
+              <tr><th>Resource URL</th><th>請求方式 (Method)</th><th>回應資訊(Response)</th><th>資料描述(Description)</th><th>呼叫參數(Parameters)</th></tr>
+            </thead>
+            <tbody>
+            <tr><td>/api/v2/dataset/search</td><td>GET</td><td>dataset</td><td>取得資料集的詳細資訊。</td><td>title, dwc_core_type, organization_id, organization_name, author, pub_date, mod_date, gbif_dataset_id, license</td></tr>
+            </tbody>
+          </table>
+
+          <h4>參數說明</h4>
+          <table class="table table-striped table-bordered">
+            <thead>
+              <tr><th>參數名稱</th><th>參數描述</th><th>查詢範例</th></tr>
+            </thead>
+            <tbody>
+            <tr><td>title</td><td>資料集名稱</td><td>/api/v1/dataset?title=海龜</td></tr>
+            {% comment %} <tr><td>dwc_core_type</td><td>核心集</td><td>/api/v1/dataset?dwc_core_type=samplingevent</td></tr> {% endcomment %}
+            <tr><td>organization_id</td><td>gbif發布單位id</td><td>/api/v1/dataset?organization_id=7c07cec1-2925-443c-81f1-333e4187bdea</td></tr>
+            <tr><td>organization_name</td><td>發布單位名稱</td><td>/api/v1/dataset?organization_name=Taiwan</td></tr>
+            <tr><td>author</td><td>發布者</td><td>/api/v1/dataset?author=李</td></tr>
+            <tr><td>pub_date</td><td>發布日期</td><td>/api/v1/dataset?pub_date=2013-08-12, 2020-07-01, /api/v1/dataset?pub_date=2020-07-30</td></tr>
+            <tr><td>mod_date</td><td>更新日期</td><td>/api/v1/dataset?mod_date=2022-03-21</td></tr>
+            <tr><td>gbif_dataset_id</td><td>gbif資料集id</td><td>/api/v1/dataset?gbif_dataset_id=233783dc-e13a-4770-9d24-797590ff8716</td></tr>
+            <tr><td>license</td><td>資料授權引用格式</td><td>/api/v1/dataset?license=CC0</td></tr>
+            
+            </tbody>
+          </table>
+          </div>
+        </div>
+        <div class="col-xs-12 col-sm-9 pub-data-content hide" data-cat="publisher_api">
+          <h1 class="heading-lg-ul">
+            發布單位 Publisher API
+          </h1>
+          <div class="pub-data-section">
+            <h4>查詢方式</h4>
+          </div>
+          <table class="table table-striped table-bordered">
+            <thead>
+              <tr><th>Resource URL</th><th>請求方式 (Method)</th><th>回應資訊(Response)</th><th>資料描述(Description)</th><th>呼叫參數(Parameters)</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>/api/v1/publisher</td><td>GET</td><td>Publisher</td><td>列出所有發布單位資訊。</td><td>q,id,countrycode</td></tr>
+              <tr><td>/api/v1/publisher/dataset/id</td><td>GET</td><td>Publisher</td><td>取得發布單位資料集資訊。</td><td>id</td></tr>
+            </tbody>
+          </table>
+
+          <h4>查詢參數說明</h4>
+          <table class="table table-striped table-bordered">
+            <thead>
+              <tr><th>參數名稱</th><th>參數描述</th><th>查詢範例</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>q</td><td>單位名稱</td><td>/api/v1/publisher?q=Forestry</td></tr>
+              <tr><td>id</td><td>單位於TaiBIF的唯一編號</td><td>/api/v1/publisher?id=1</td></tr>
+              <tr><td>countrycode</td><td>單位地理位置</td><td>/api/v1/publisher?countrycode=PH</td></tr>
+            </tbody>
+          </table>
+        </div>
+        {% endif%}
+        {% if LANGUAGE_CODE == "en" %}
+        
+        {% include "inc_breadcrumb.html" with tab="01" active_label="Publish Your Data"%}
+          <!-- row begin -->
+          <div class="row">
+            <!-- visible-xs modal begin -->
+            <div class="visible-xs">
+              <a href="javascript:void(0)" class="xs-schedule-flow-btn myicon icon-arrow-left" data-toggle="modal" data-target="#flowBtnModal">
+                更多資料上傳介紹
+              </a>
+            </div>
+      
+            <!-- xs-schedule-navBtn-modal begin -->
+            <div class="modal right fade" id="flowBtnModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel2">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+      
+                  <div class="modal-body">
+                    <span class="modal-close myicon icon-close" data-dismiss="modal" aria-label="Close"></span>
+                    <ul class="schedule-flow-nav-wrapper">
+                      {% include "taibif-api-nav-items.html" %}
+                    </ul>
+                    </p>
+                  </div>
+      
+                </div>
+                <!-- modal-content -->
+              </div>
+              <!-- modal-dialog -->
+            </div>
+            <!-- xs-schedule-navBtn-modal end -->
+      
+            <!-- visible-xs modal end -->
+      
+            
+            <!-- left nav begin -->
+            <div class="col-sm-3 hidden-xs">
+              <ul class="schedule-flow-nav-wrapper">
+                {% include "taibif-api-nav-items.html" %}
+              </ul>
+            </div>
+            <!-- left nav end -->
+        <div class="col-xs-12 col-sm-9 pub-data-content" data-cat="sop">
+          
+        </div>
+        {% endif%}
+      <!-- right content end -->
+    </div>
+    <!-- row end -->
+  </div>
+  <!-- container end -->
+{% endblock %}

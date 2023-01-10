@@ -18,19 +18,24 @@ function renderBarChart(selector, dataset) {
     .padding(0.5)
     .domain(dataset.map(function(d) { return d.x; }));
 
-  var yScale = d3.scaleLinear()
-    .domain([0, d3.max(dataset, function(d) { return d.y; })|| 1])
+  var yScale_d = d3.scaleLinear()
+    .domain([0, d3.max(dataset, function(d) { return d.y; }) + 100000 || 100000])
+    .range([height - padding, padding]);
+
+  var yScale_ds = d3.scaleLinear()
+    .domain([0, d3.max(dataset, function(d) { return d.y; }) + 5 || 5])
     .range([height - padding, padding]);
 
   svg.append("g")
     .attr("transform", "translate(" + 0 + "," + (height - padding) + ")")
     .attr("class", "axis")
     .call(d3.axisBottom(xScale));
+  
   if (selector == '#taibif-stats__this_year_occurrence') {
   svg.append("g")
     .attr("transform", "translate(" + padding + "," + 0 + ")")
     .attr("class", "axis")
-    .call(d3.axisLeft(yScale).ticks(5)
+    .call(d3.axisLeft(yScale_d).ticks(5)
     .tickFormat(function (d) {
                 switch(d) {
                   case 100000: return "100K"; break;
@@ -41,24 +46,46 @@ function renderBarChart(selector, dataset) {
                   case 600000: return "600K"; break;
                   case 700000: return "700K"; break;
                   case 800000: return "800K"; break;
+                  case 900000: return "900K"; break;
               }})
       );
-  } else {
-    svg.append("g")
-      .attr("transform", "translate(" + padding + "," + 0 + ")")
-      .attr("class", "axis")
-      .call(d3.axisLeft(yScale).ticks(5));
-  };
-
+  
   svg.append("g")
     .selectAll("rect")
     .data(dataset)
     .enter()
     .append("rect")
     .attr("x", function(d) { return xScale(d.x); })
-    .attr("y", function(d) { return yScale(d.y); })
+    .attr("y", function(d) { return yScale_d(d.y); })
     .attr("width", xScale.bandwidth())
-    .attr("height", function(d) { return height - padding - yScale(d.y); })
+    .attr("height", function(d) { return height - padding - yScale_d(d.y); })
+    .attr("fill", "#846C5B");
+
+  svg.append("g")
+    .selectAll("rect")
+    .data(dataset)
+    .enter()
+    .append("text")
+    .attr("x", function(d) { return xScale(d.x) + 14; })
+    .attr("y", function(d) {return yScale_d(d.y) - 5; })
+    .text(function(d) {return d.y.toLocaleString()})
+    .attr("class", "label");
+  } else {
+    svg.append("g")
+      .attr("transform", "translate(" + padding + "," + 0 + ")")
+      .attr("class", "axis")
+      .call(d3.axisLeft(yScale_ds).ticks(5)
+      );
+      
+    svg.append("g")
+    .selectAll("rect")
+    .data(dataset)
+    .enter()
+    .append("rect")
+    .attr("x", function(d) { return xScale(d.x); })
+    .attr("y", function(d) { return yScale_ds(d.y); })
+    .attr("width", xScale.bandwidth())
+    .attr("height", function(d) { return height - padding - yScale_ds(d.y); })
     .attr("fill", "#846C5B");
 
   svg.append("g")
@@ -67,9 +94,10 @@ function renderBarChart(selector, dataset) {
     .enter()
     .append("text")
     .attr("x", function(d) { return xScale(d.x)+14; })
-    .attr("y", function(d) {return yScale(d.y)-5; })
+    .attr("y", function(d) {return yScale_ds(d.y)-5; })
     .text(function(d) {return d.y.toLocaleString()})
     .attr("class", "label");
+  };
     const titleColor = colorPrimary;
     const appendixColor = colorPrimary;//'#1d5a91';
     const appendixColor2 = colorSecondary;//'#1d5a91';
@@ -82,9 +110,10 @@ function renderBarChart(selector, dataset) {
       .style("font-size", "18px")
       .attr("fill", titleColor)
       .text((language === 'en')? "Month" : "月 份");
+
   svg.append("text")
-      .attr("x", -200)
-      .attr("y", height - padding * 4.2)
+      .attr("x", -180)
+      .attr("y", height - padding * 4.2 )
       .attr("text-anchor", "middle")
       .attr("transform", "rotate(-90)")
       .style("font-size", "18px")
@@ -116,77 +145,125 @@ function renderLineChart(selector, dataset) {
     .padding(0.5)
       .domain(dataset.map(function(d) {  return d.year; }));
 
-  var yScale = d3.scaleLinear()
-    .domain([0, d3.max(dataset, function(d) { 
-      // console.log(d.y2);
-      return d.y2; })])
+  var yScale_d = d3.scaleLinear()
+    .domain([0, d3.max(dataset, function(d) { return d.y2; }) + 9000])
     .range([height - padding, padding]);
 
+  var yScale_ds = d3.scaleLinear()
+  .domain([0, d3.max(dataset, function(d) { return d.y2; }) + 10 ])
+  .range([height - padding, padding]);
+  
   svg.append("g")
     .attr("transform", "translate(" + 0 + "," + (height - padding) + ")")
     .attr("class", "axis")
     .call(d3.axisBottom(xScale));
-  //const ticks = ();
-  // console.log(dataset);
+    
+  let hackYSHIFT = 26;
   if (selector == '#taibif-stats__trend_occurrence') {
     svg.append("g")
       .attr("transform", "translate(" + padding + "," + 0 + ")")
       .attr("class", "axis")
-      .call(d3.axisLeft(yScale).ticks(5)
+      .call(d3.axisLeft(yScale_d).ticks(5)
       .tickFormat(function (d) {
         switch(d) {
+          case 2000: return "2K"; break;
+          case 4000: return "4K"; break;
+          case 6000: return "6K"; break;
+          case 8000: return "8K"; break;
+          case 10000: return "10K"; break;
           case 1000000: return "1M"; break;
           case 2000000: return "2M"; break;
           case 3000000: return "3M"; break;
           case 4000000: return "4M"; break;
           case 5000000: return "5M"; break;
+          case 6000000: return "6M"; break;
       }}));
-  } else {
-    svg.append("g")
-      .attr("transform", "translate(" + padding + "," + 0 + ")")
-      .attr("class", "axis")
-      .call(d3.axisLeft(yScale).ticks(5));
-  }
-
-  let hackYSHIFT = 26;
-  svg.append("path")
+    
+    svg.append("path")
     .datum(dataset)
     .attr("fill", "none")
     .attr("stroke", colorSecondary)
     .style("stroke-dasharray", ("3, 3"))
     .attr("stroke-width", 3)
     .attr("d", d3.line()
-          .x(function(d) { return xScale(d.year)+hackYSHIFT; })
-          .y(function(d) { return yScale(d.y1); }));
+    .x(function(d) { return xScale(d.year)+hackYSHIFT; })
+    .y(function(d) { return yScale_d(d.y1); }));
 
-  svg.append("path")
+    svg.append("path")
+      .datum(dataset)
+      .attr("fill", "none")
+      .attr("stroke", "#846C5B")
+      .attr("stroke-width", 3)
+      .attr("d", d3.line()
+      .x(function(d) { return xScale(d.year)+hackYSHIFT; })
+      .y(function(d) { return yScale_d(d.y2); }));
+
+    svg.append("g")
+      .selectAll("path")
+      .data(dataset)
+      .enter()
+      .append("text")
+      .attr("x", function(d) {return xScale(d.year)+14; })
+      .attr("y", function(d) {return yScale_d(d.y2)-20; })
+      .text(function(d) {return d.y2.toLocaleString()})
+      .attr("class", "label");
+
+    svg.append("g")
+      .selectAll("path")
+      .data(dataset)
+      .enter()
+      .append("text")
+      .attr("x", function(d) {return xScale(d.year)+14; })
+      .attr("y", function(d) {return yScale_d(d.y1)-3; })
+      .text(function(d) {return d.y1.toLocaleString()})
+      .attr("fill", colorSecondary);
+  } else {
+    svg.append("g")
+      .attr("transform", "translate(" + padding + "," + 0 + ")")
+      .attr("class", "axis")
+      .call(d3.axisLeft(yScale_ds).ticks(5)
+      );
+    
+    svg.append("path")
     .datum(dataset)
     .attr("fill", "none")
-    .attr("stroke", "#846C5B")
+    .attr("stroke", colorSecondary)
+    .style("stroke-dasharray", ("3, 3"))
     .attr("stroke-width", 3)
     .attr("d", d3.line()
-          .x(function(d) { return xScale(d.year)+hackYSHIFT; })
-          .y(function(d) { return yScale(d.y2); }));
+    .x(function(d) { return xScale(d.year)+hackYSHIFT; })
+    .y(function(d) { return yScale_ds(d.y1); }));
 
-  svg.append("g")
-    .selectAll("path")
-    .data(dataset)
-    .enter()
-    .append("text")
-    .attr("x", function(d) {return xScale(d.year)+14; })
-    .attr("y", function(d) {return yScale(d.y2)-20 })
-    .text(function(d) {return d.y2.toLocaleString()})
-    .attr("class", "label");
+    svg.append("path")
+      .datum(dataset)
+      .attr("fill", "none")
+      .attr("stroke", "#846C5B")
+      .attr("stroke-width", 3)
+      .attr("d", d3.line()
+      .x(function(d) { return xScale(d.year)+hackYSHIFT; })
+      .y(function(d) { return yScale_ds(d.y2); }));
 
-  svg.append("g")
-    .selectAll("path")
-    .data(dataset)
-    .enter()
-    .append("text")
-    .attr("x", function(d) {return xScale(d.year)+24; })
-    .attr("y", function(d) {return yScale(d.y1)-3; })
-    .text(function(d) {return d.y1.toLocaleString()})
-    .attr("fill", colorSecondary);
+    svg.append("g")
+      .selectAll("path")
+      .data(dataset)
+      .enter()
+      .append("text")
+      .attr("x", function(d) {return xScale(d.year)+14; })
+      .attr("y", function(d) {return yScale_ds(d.y2)-20 })
+      .text(function(d) {return d.y2.toLocaleString()})
+      .attr("class", "label");
+
+    svg.append("g")
+      .selectAll("path")
+      .data(dataset)
+      .enter()
+      .append("text")
+      .attr("x", function(d) {return xScale(d.year)+14; })
+      .attr("y", function(d) {return yScale_ds(d.y1)-3; })
+      .text(function(d) {return d.y1.toLocaleString()})
+      .attr("fill", colorSecondary);
+  }
+
     //.attr("class", "label");
     const titleColor = colorPrimary;
     const appendixColor = colorPrimary;//'#1d5a91';
@@ -201,7 +278,7 @@ function renderLineChart(selector, dataset) {
      .attr("fill", titleColor)
      .text((language === 'en')? "Year" : "年 份");
   svg.append("text")
-     .attr("x", -200)
+     .attr("x", -180)
      .attr("y", height - padding * 4.3)
      .attr("text-anchor", "middle")
      .attr("transform", "rotate(-90)")

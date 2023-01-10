@@ -11,7 +11,7 @@ https://portal.taibif.tw/api/
 
 |Resource URL|請求方式 (Method)|回應資訊(Response) |  資料描述(Description) | 呼叫參數(Parameters)|
 | -------- | -------- | -------- | -------- | -------- | 
-|/v2/occurrence/search|GET|Occurrence|取得出現紀錄的詳細資訊，包含原始及詮釋資料。|q,habitat,scientificNameID,references,year,individualCount,county,fieldNumber,decimalLatitude,type,geom,class_zh,locationAccordingTo,occurrenceStatus,taibif_dataset_name_zh,id,verbatimElevation,family_zh,level_0,order,infraspecificEpithet,phylum_zh,organismQuantity,verbatimEventDate,georeferencedBy,endDayOfYear,locality,minimumElevationInMeters,index,collectionCode,materialSampleID,occurrenceID,order_zh,verbatimLatitude,taibif_county,genus,organismQuantityType,acceptedNameUsageID,ownerInstitutionCode,higherClassification,continent,order_key,latitude,minimumDepthInMeters,higherGeographyID,phylum_key,locationRemarks,taibif_dataset_name,countryCode,kingdom_key,verbatimLongitude,rights,eventTime,nameAccordingTo,behavior,identifiedBy,nomenclaturalCode,georeferenceProtocol,sex,class_key,associatedMedia,waterBody,disposition,otherCatalogNumbers,lifeStage,locationID,verbatimCoordinates,startDayOfYear,verbatimTaxonRank,georeferenceSources,rightsHolder,country,institutionID,scientificName,grid_x,municipality,associatedReferences,language,establishmentMeans,taxonRemarks,catalogNumber,basisOfRecord,fieldNotes,organismName,modified,maximumDepthInMeters,day,reproductiveCondition,recordNumber,georeferencedDate,acceptedNameUsage,family_key,higherGeography,island,georeferenceRemarks,decimalLongitude,stateProvince,verbatimLocality,maximumElevationInMeters,license,month,organismID,dateIdentified,kingdom_zh,publisher,samplingProtocol,coreid,collectionID,eventDate,name_zh,eventID,scientificNameAuthorship,coordinateUncertaintyInMeters,associatedTaxa,longtitude,taxonRank,eventRemarks,identificationVerificationStatus,taxonID,preparations,vernacularName,institutionCode,genus_zh,namePublishedIn,identificationRemarks,class,informationWithheld,dataGeneralizations,species_key,georeferenceVerificationStatus,typeStatus,verbatimSRS,datasetName,verbatimCoordinateSystem,geodeticDatum,kingdom,verbatimDepth,specificEpithet,recordedBy,phylum,_version_,previousIdentifications,coordinatePrecision,originalNameUsage,taibif_occ_id,taxon_backbone,datasetID,occurrenceRemarks,grid_y,genus_key,associatedSequences,family,facet|
+|/v2/occurrence/search|GET|Occurrence|取得出現紀錄的詳細資訊，包含原始及詮釋資料。|q, country, dataset, month, publisher, taibif_county, facet, rows,  lat, lng|
 
 **參數**
 
@@ -58,7 +58,7 @@ https://portal.taibif.tw/api/
 |dwc_core_type|核心集|/api/v1/dataset?dwc_core_type=samplingevent|
 |organization_id|gbif 發布單位 id|/api/v1/dataset?organization_id=7c07cec1-2925-443c-81f1-333e4187bdea|
 |organization_name|發布單位 名稱|/api/v1/dataset?organization_name=Taiwan|
-|author|發布者|資料集creator|
+|author|發布者|/api/v1/dataset?author=李|
 |pub_date|發布日期|pub_date|/api/v1/dataset?pub_date=2013-08-12,2020-07-01,/api/v1/dataset?pub_date=2020-07-30
 |mod_date|更新日期|/api/v1/dataset?mod_date=2022-03-21|
 |gbif_dataset_id|gbif 資料集 id|/api/v1/dataset?gbif_dataset_id=233783dc-e13a-4770-9d24-797590ff8716|

@@ -55,16 +55,15 @@ def search_all(request):
         ## 預設最多每組 20 筆
         count = 0
 
-        # TODO check article type 
         # article
-        # article_rows = []
-        # for x in Article.objects.filter(title__icontains=q).all()[:10]:
-        #     article_rows.append({
-        #         'title': x.title,
-        #         'content': x.content,
-        #         'url': x.get_absolute_url()
-        #     })
-        # count += len(article_rows)
+        article_rows = []
+        for x in Article.objects.filter(title__icontains=q).all()[:10]:
+            article_rows.append({
+                'title': x.title,
+                'content': x.content,
+                'url': x.get_absolute_url()
+            })
+        count += len(article_rows)
 
         # occurrence
         occur_rows = []
@@ -82,23 +81,28 @@ def search_all(request):
             occur_rows.append({
                 'title': '{} {}'.format(name, name_zh),
                 'content': '資料集: {}'.format(x['taibif_dataset_name_zh']),
-                'url': '/occurrence/{}'.format(x['taibif_occ_id'][0]) 
+                'url': '/occurrence/{}'.format(x['taibif_occ_id']) 
             })
         count += len(occur_rows)
 
         # dataset
         dataset_rows = []
-        for x in Dataset.objects.values('title', 'name','id').filter(Q(title__icontains=q)).exclude(status='Private').all()[:20]:
+        for x in Dataset.objects.values('title', 'name','id').filter(Q(title__icontains=q)).exclude(status='Private').all()[:5]:
+            tmp_content = Dataset_description.objects.filter(dataset=x['id']).order_by('seq')
+            if len(tmp_content) > 0:
+                tmp_content = Dataset_description.objects.filter(dataset=x['id']).order_by('seq')[0].description
+            else:
+                tmp_content = ''
             dataset_rows.append({
-                'title': x['title'],
-                'content':Dataset_description.objects.filter(dataset=x['id']).order_by('seq')[0].description, 
+                'title': x['title'] if x['title'] != '' else x['name'],
+                'content':tmp_content, 
                 'url': '/dataset/{}'.format(x['name'])
             })
         count += len(dataset_rows)
 
         # species
         species_rows = []
-        for x in Taxon.objects.filter(Q(name__icontains=q) | Q(name_zh__icontains=q)).all()[:20]:
+        for x in Taxon.objects.filter(Q(name__icontains=q) | Q(name_zh__icontains=q)).all()[:5]:
             species_rows.append({
                 'title': '[{}] {}'.format(x.get_rank_display(), x.get_name()),
                 'content': '物種數: {}'.format(x.count),
@@ -108,7 +112,7 @@ def search_all(request):
 
         # publisher
         publisher_rows = []
-        for x in DatasetOrganization.objects.filter(name__icontains=q).all()[:20]:
+        for x in DatasetOrganization.objects.filter(name__icontains=q).all()[:5]:
             publisher_rows.append({
                 'title': x.name,
                 'content': x.description,
@@ -119,11 +123,11 @@ def search_all(request):
         context = {
             'count': count,
             'results': [
-                # {
-                #     'cat': 'article',
-                #     'label': '文章',
-                #     'rows': article_rows
-                # },
+                {
+                    'cat': 'article',
+                    'label': '文章',
+                    'rows': article_rows
+                },
                 {
                     'cat': 'occurrence',
                     'label': '出現紀錄',
@@ -168,6 +172,7 @@ def occurrence_view(request, taibif_id):
     lat = 0
     lon = 0
     # intro 
+    # TODO
     intro['dataset_zh']=result[0].get('taibif_dataset_name_zh')
     intro['publisher']=result[0].get('publisher')
     intro['basisOfRecord']=result[0].get('basisOfRecord')
@@ -467,12 +472,11 @@ def species_view(request, pk):
             'order':'order_key',
             'family':'family_key',
             'genus':'genus_key',
-            'species':'species_key',
+            'species':'taxon_id',
         }
     total = []
 
     solr_q = switch.get(taxon.rank) + ':' + str(pk)
-    
 
     search_limit = 20
     facet_dataset = 'dataset:{type:terms,field:taibif_dataset_name,limit:-1,mincount:1}'
@@ -484,7 +488,6 @@ def species_view(request, pk):
     #     r = requests.get(f'http://54.65.81.61:8983/solr/taibif_occurrence/select?facet=true&q.op=AND&rows={search_limit}&q=*:*&fq={solr_q}&{facet_json}')
     # else:
     r = requests.get(f'http://solr:8983/solr/taibif_occurrence/select?facet=true&q.op=AND&rows={search_limit}&q=*:*&fq={solr_q}&{facet_json}')
-
 
     map_url = "http://"+request.META['HTTP_HOST']+"/api/v2/occurrence/search?taxon_key="+taxon.rank+":"+str(taxon.id)+"&facet=year&facet=month&facet=dataset&facet=dataset_id&facet=publisher&facet=country&facet=license"
     r2 = requests.get(map_url)
